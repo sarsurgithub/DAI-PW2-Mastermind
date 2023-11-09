@@ -42,4 +42,4 @@ The server can send the following messages:
 
 ## Section 4 examples
 
-![Sequence diagram of the protocol](./images/diagramSeqProt.jpg)
+![Sequence diagram of the protocol](./images/diagramSeqProt.png)

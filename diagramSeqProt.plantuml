@@ -1,0 +1,62 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+skinparam sequenceMessageAlign center
+
+Title Mastermind Protocol Sequence Diagram
+
+Client --> Server: Establish Connection
+Server -> Client: OK
+
+||30||
+
+Client -> Server: START
+Client <- Server: GAME STARTED
+
+||30||
+
+Client -> Server: TRY rbgy
+Client <- Server: ANSWER cocn
+
+||30||
+
+Client -> Server: uuuuuuu
+Client <- Server: ERROR 418
+
+||30||
+
+Client -> Server: TRY rrgb
+Client <- Server: FINISHED won
+
+||30||
+
+Client -> Server: QUIT
+Client <-- Server: closes connection
+
+||30||
+
+Client --> Server: Establish Connection
+Client <- Server: OK
+
+||30||
+
+Client -> Server: HELP
+Client <- Server: COMMANDS
+
+||30||
+
+Client -> Server: RULES
+Client <- Server: SEND RULES
+
+||30||
+
+Client -> Server: TRY rbgy
+Client <- Server: ERROR 403
+
+||30||
+
+Client -> Server: RESTART 1234
+Client <- Server: ERROR 400
+Client --> Server: Close Connection
+
+@enduml
