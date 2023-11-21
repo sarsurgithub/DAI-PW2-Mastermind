@@ -1,21 +1,51 @@
 # DAI-PW2-Mastermind
+
 Client/Server application to play games of Mastermind
 
-# Definition of the protocol
+## How to build the project
 
-## Section 1 - overview
+If you are using IntelliJ, there is a run configuration already set up for you. You can just run it.
+Otherwise, you can use the following commands:
+
+```bash
+# Download the dependencies
+./mvnw dependency:resolve
+
+# Package the application
+./mvnw package
+```
+
+## Usage
+
+### Server
+
+```bash
+# Run the server
+java -jar target/DAI-PW2-Mastermind-1.0-SNAPSHOT.jar server
+```
+
+### Client
+
+```bash
+# Run the client
+java -jar target/DAI-PW2-Mastermind-1.0-SNAPSHOT.jar client 
+```
+
+## Definition of the protocol
+
+### Section 1 - overview
 
 The mastermind protocol is meant to play a game of mastermind versus a server over the network
 The mastermind protocol is a client-server protocol
 The client connects to a server to start a game of mastermind, the server then sends a message containing the starting point of the game. The client then tries to find the solution and sends it to the servers, which answers either with a message signfying the win of the client or with a clue for the answer. This goes on until the client found the answer or request the game to stop or restart.
 
-## Section 2 - Transport protocol
+### Section 2 - Transport protocol
 
 The mastermind protocol uses the TCP protocol. The server runs on port 44444.
 The client has to know the IP adress of the server to connect to it. It establishes the connection with the server.
 The server closes the connection when the game is finished or if it is requested by the client.
 
-## Section 3 - Messages
+### Section 3 - Messages
 
 The client can send the following messages:
 - `START`: used to start a game
@@ -40,6 +70,6 @@ The server can send the following messages:
   - `403`: using TRY outside of a game, does not close the connection
   - `400`: every other malformation closes the connection
 
-## Section 4 examples
+### Section 4 examples
 
 ![Sequence diagram of the protocol](./images/diagramSeqProt.png)
