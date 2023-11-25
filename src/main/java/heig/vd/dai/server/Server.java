@@ -5,104 +5,124 @@ import picocli.CommandLine;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 @CommandLine.Command(name = "server", version = "1.0", mixinStandardHelpOptions = true)
 public class Server implements Runnable{
-    private static final int SERVER_ID = (int) (Math.random() * 1000000);
-    private static final String TEXTUAL_DATA = "👋 from Server " + SERVER_ID;
-
-
-
     @CommandLine.Parameters(paramLabel = "<port>", defaultValue = "4444",
-            description = "File to be read as an input. (default: ${DEFAULT-VALUE})")
+            description = "Port of the server (default: ${DEFAULT-VALUE})")
     private int port;
     @Override
     public void run() {
-        System.out.println("Server");
-        try (ServerSocket serverSocket = new ServerSocket(port);) {
-            System.out.println(
-                    "[Server " + SERVER_ID + "] starting with id " + SERVER_ID
-            );
-            System.out.println(
-                    "[Server " + SERVER_ID + "] listening on port " + port
-            );
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("Server is listening on port " + port);
 
             while (true) {
-                Socket clientSocket = serverSocket.accept();
-                Thread clientThread = new Thread(new ClientHandler(clientSocket));
-                clientThread.start();
+                Socket socket = serverSocket.accept();
+                System.out.println("New client connected");
+
+                new Thread(new ClientHandler(socket)).start();
             }
-        } catch (IOException e) {
-            System.out.println("[Server " + SERVER_ID + "] exception: " + e);
+
+        } catch (IOException ex) {
+            System.out.println("Server exception: " + ex.getMessage());
+            ex.printStackTrace();
         }
-
-
     }
 
-    static class ClientHandler implements Runnable {
-
-        private final Socket socket;
+    class ClientHandler implements Runnable {
+        private Socket socket;
+        private MastermindGame game;
+        private boolean gameInProgress;
 
         public ClientHandler(Socket socket) {
             this.socket = socket;
+            this.gameInProgress = false;
         }
 
         @Override
         public void run() {
-            try (
-                    socket; // This allow to use try-with-resources with the socket
-                    BufferedReader in = new BufferedReader(
-                            new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8)
-                    );
-                    BufferedWriter out = new BufferedWriter(
-                            new OutputStreamWriter(
-                                    socket.getOutputStream(),
-                                    StandardCharsets.UTF_8
-                            )
-                    )
-            ) {
-                System.out.println(
-                        "[Server " +
-                                SERVER_ID +
-                                "] new client connected from " +
-                                socket.getInetAddress().getHostAddress() +
-                                ":" +
-                                socket.getPort()
-                );
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                 PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)) {
 
-                System.out.println(
-                        "[Server " +
-                                SERVER_ID +
-                                "] received textual data from client: " +
-                                in.readLine()
-                );
+                writer.println("OK");
 
-                try {
-                    System.out.println(
-                            "[Server " +
-                                    SERVER_ID +
-                                    "] sleeping for 10 seconds to simulate a long operation"
-                    );
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+                String clientMessage;
+                while ((clientMessage = reader.readLine()) != null) {
+                    switch (clientMessage.split(" ")[0]) {
+                        case "START":
+                            startGame(writer);
+                            break;
+                        case "RULES":
+                            sendRules(writer);
+                            break;
+                        case "HELP":
+                            sendHelp(writer);
+                            break;
+                        case "TRY":
+                            if (gameInProgress) {
+                                handleTry(writer, clientMessage.substring(4).toCharArray());
+                            } else {
+                                writer.println("ERROR 403");
+                            }
+                            break;
+                        case "QUIT":
+                            writer.println("FINISHED LOST");
+                            socket.close();
+                            return;
+                        default:
+                            writer.println("ERROR 400");
+                            socket.close();
+                            return;
+                    }
                 }
-
-                System.out.println(
-                        "[Server " +
-                                SERVER_ID +
-                                "] sending response to client: " +
-                                TEXTUAL_DATA
-                );
-
-                out.write(TEXTUAL_DATA + "\n");
-                out.flush();
-
-                System.out.println("[Server " + SERVER_ID + "] closing connection");
-            } catch (IOException e) {
-                System.out.println("[Server " + SERVER_ID + "] exception: " + e);
+            } catch (IOException ex) {
+                System.out.println("Server exception: " + ex.getMessage());
+                ex.printStackTrace();
             }
         }
-    }
-}
+
+        private void startGame(PrintWriter writer) {
+            game = new MastermindGame();
+            gameInProgress = true;
+            writer.println("GAMES STARTED");
+        }
+
+        private void sendRules(PrintWriter writer) {
+            writer.println("SEND RULES");
+            // Add rules text here
+        }
+
+        private void sendHelp(PrintWriter writer) {
+            writer.println("COMMANDS");
+            // Add commands text here
+        }
+
+        private void handleTry(PrintWriter writer, char[] proposition) {
+            // Check length
+            if (proposition.length != 4) {
+                writer.println("ERROR 418");
+                return;
+            }
+
+            // Check if all characters are valid symbols
+            String validSymbolsRegex = "[RBGY]";
+            for (char c : proposition) {
+                if (!String.valueOf(c).matches(validSymbolsRegex)) {
+                    writer.println("ERROR 418");
+                    return;
+                }
+            }
+
+            // Convert char array to String
+            String propositionStr = new String(proposition);
+
+            // Use the string for further operations
+            int[] clues = game.getHint(proposition);
+            if (game.isCorrect(proposition)) {
+                writer.println("FINISHED WON");
+                gameInProgress = false;
+            } else {
+                writer.println("ANSWER " + clues);
+            }
+        }
+    }}
