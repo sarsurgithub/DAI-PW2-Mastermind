@@ -84,7 +84,8 @@ public class Server implements Runnable{
         private void startGame(PrintWriter writer) {
             game = new MastermindGame();
             gameInProgress = true;
-            writer.println("GAMES STARTED");
+            writer.println("GAME STARTED");
+
         }
 
         private void sendRules(PrintWriter writer) {
