@@ -36,22 +36,18 @@ public class Client implements Runnable {
             while ((fromServer = in.readLine()) != null) {
                 System.out.println("Server: " + fromServer);
 
-                switch (fromServer) {
-                    case "FINISHED WON":
-                        System.out.println("You won! Type 'START' to play again or 'QUIT' to exit.");
-                        break;
-                    case "FINISHED LOST":
-                        System.out.println("Game Over, you lost. Type 'START' to play again or 'QUIT' to exit.");
-                        break;
-                    case "QUIT":
-                        // Process and display rules from the server
-                        break;
-                    case "ANSWER":
-                        processAnswer(fromServer);
-                        break;
-                    // Add other cases as needed based on server responses
+                if (fromServer.startsWith("ANSWER")) {
+                    processAnswer(fromServer);
+                } else {
+                    switch (fromServer) {
+                        case "FINISHED WON":
+                            System.out.println("You won! Type 'START' to play again or 'QUIT' to exit.");
+                            break;
+                        case "FINISHED LOST":
+                            System.out.println("Game Over, you lost. Type 'START' to play again or 'QUIT' to exit.");
+                            break;
+                    }
                 }
-
                 System.out.print("Enter command: ");
                 fromUser = scanner.nextLine();
 
@@ -134,8 +130,8 @@ public class Client implements Runnable {
                 int clue1 = Integer.parseInt(parts[1]);
                 int clue2 = Integer.parseInt(parts[2]);
                 // Process the clues. For example, display them to the user.
-                System.out.println("Number of colors correctly placed: " + clue1 + "\n " +
-                        "Numbers of colors present in the answer but not correctly placed: " + clue2);
+                System.out.println("Number of colors correctly placed: " + clue1 + "\n" +
+                        "Numbers of colors present in the answer: " + clue2);
             } catch (NumberFormatException e) {
                 System.out.println("Error processing clues: " + e.getMessage());
             }

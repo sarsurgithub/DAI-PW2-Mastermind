@@ -42,36 +42,35 @@ public class Server implements Runnable{
         @Override
         public void run() {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                 PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)) {
+                 PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true)) {
 
-                writer.println("OK");
+                printWriter.println("OK");
 
                 String clientMessage;
                 while ((clientMessage = reader.readLine()) != null) {
                     switch (clientMessage.split(" ")[0]) {
                         case "START":
-                            startGame(writer);
+                            startGame(printWriter);
                             break;
                         case "RULES":
-                            sendRules(writer);
+                            sendRules(printWriter);
                             break;
                         case "HELP":
-                            sendHelp(writer);
+                            sendHelp(printWriter);
                             break;
                         case "TRY":
                             if (gameInProgress) {
-                                handleTry(writer, clientMessage.substring(4).toCharArray());
+                                handleTry(printWriter, clientMessage.substring(4).toCharArray());
                             } else {
-                                writer.println("ERROR 403");
+                                printWriter.println("ERROR 403");
                             }
                             break;
                         case "QUIT":
-                            writer.println("FINISHED LOST");
+                            printWriter.println("FINISHED LOST");
                             socket.close();
                             return;
                         default:
-                            writer.println("ERROR 400");
-                            socket.close();
+                            printWriter.println("ERROR 400 Please send a correct command");
                             return;
                     }
                 }
