@@ -6,13 +6,13 @@ import java.util.Map;
 public class MastermindGame {
     private static final int NB_COLORS = 4;
     private static final char[] COLORS = {'R', 'B', 'G', 'Y'};
-    private int nbTry = 8;
-    private int turn = 1;
-    private int nbPins = 4;
+    private final int nbTry;
+    private int turn;
+    private int nbPins;
     private final char[] secretCode = new char[nbPins];
 
     public MastermindGame() {
-        generateSecretCode();
+        this(10, 4);
     }
 
     public MastermindGame(int nbTry, int nbPins) {
