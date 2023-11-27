@@ -11,29 +11,24 @@ Server -> Client: OK
 ||30||
 
 Client -> Server: START
-Client <- Server: GAME STARTED
+Client <- Server: STARTED
 
 ||30||
 
 Client -> Server: TRY rbgy
-Client <- Server: ANSWER cocn
+Client <- Server: ANSWER 1 2
 
 ||30||
 
-Client -> Server: uuuuuuu
-Client <- Server: ERROR 418
-
-||30||
-
-Client -> Server: TRY rrgb
-Client <- Server: FINISHED won
+Client -> Server: TRY rgrb
+Client <- Server: FINISHED WON
 
 ||30||
 
 Client -> Server: QUIT
 Client <-- Server: closes connection
 
-||30||
+||60||
 
 Client --> Server: Establish Connection
 Client <- Server: OK
@@ -41,22 +36,31 @@ Client <- Server: OK
 ||30||
 
 Client -> Server: HELP
-Client <- Server: COMMANDS
+Client <- Server: SEND "commands"
 
 ||30||
 
 Client -> Server: RULES
-Client <- Server: SEND RULES
+Client <- Server: SEND "rules"
 
 ||30||
 
 Client -> Server: TRY rbgy
-Client <- Server: ERROR 403
+Client <- Server: ERROR "game not started"
 
 ||30||
 
-Client -> Server: RESTART 1234
-Client <- Server: ERROR 400
-Client --> Server: Close Connection
+Client -> Server: uuuuuuu
+Client <- Server: ERROR "invalid command"
+
+||30||
+
+Client -> Server: START a b
+Client <- Server: ERROR "invalid command"
+
+||30||
+
+Client -> Server: QUIT
+Client <-- Server: closes connection
 
 @enduml
