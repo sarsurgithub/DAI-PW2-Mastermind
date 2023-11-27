@@ -5,12 +5,21 @@ import picocli.CommandLine;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @CommandLine.Command(name = "server", version = "1.0", mixinStandardHelpOptions = true)
 public class Server implements Runnable{
     @CommandLine.Parameters(paramLabel = "<port>", defaultValue = "4444",
             description = "Port of the server (default: ${DEFAULT-VALUE})")
     private int port;
+    private final ExecutorService pool; // Thread pool
+
+    public Server() {
+        this.pool = Executors.newFixedThreadPool(3);
+    }
+
     @Override
     public void run() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -20,12 +29,17 @@ public class Server implements Runnable{
                 Socket socket = serverSocket.accept();
                 System.out.println("New client connected");
 
-                new Thread(new ClientHandler(socket)).start();
+                ClientHandler clientHandler = new ClientHandler(socket);
+                pool.submit(clientHandler); // Submit to the thread pool
             }
 
         } catch (IOException ex) {
             System.out.println("Server exception: " + ex.getMessage());
             ex.printStackTrace();
+        } finally {
+            if (pool != null) {
+                pool.shutdown();
+            }
         }
     }
 
@@ -53,10 +67,10 @@ public class Server implements Runnable{
                             startGame(printWriter);
                             break;
                         case "RULES":
-                            sendRules(printWriter);
+                            sendText(printWriter, "SEND RULES");
                             break;
                         case "HELP":
-                            sendHelp(printWriter);
+                            sendText(printWriter, "COMMANDS");
                             break;
                         case "TRY":
                             if (gameInProgress) {
@@ -87,14 +101,33 @@ public class Server implements Runnable{
 
         }
 
-        private void sendRules(PrintWriter writer) {
-            writer.println("SEND RULES");
-            // Add rules text here
-        }
+        private void sendText(PrintWriter writer, String type) {
+            String filepath;
+            if (Objects.equals(type, "SEND RULES")){
+                filepath = "ressources/rules.txt";
+            } else if (Objects.equals(type, "COMMANDS")){
+                filepath = "ressources/help.txt";
+            } else {
+                return;
+            }
 
-        private void sendHelp(PrintWriter writer) {
-            writer.println("COMMANDS");
-            // Add commands text here
+            writer.println(type);
+
+            File file = new File(filepath);
+
+            if (file.exists()) {
+                try (BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
+                    String line;
+                    while ((line = fileReader.readLine()) != null) {
+                        writer.println(line);
+                    }
+                } catch (IOException e) {
+                    writer.println("ERROR: Unable to read file " + type + ".");
+                    System.out.println("Error reading file " + type + ": " + e.getMessage());
+                }
+            } else {
+                writer.println("ERROR:" + type + " file not found.");
+            }
         }
 
         private void handleTry(PrintWriter writer, char[] proposition) {

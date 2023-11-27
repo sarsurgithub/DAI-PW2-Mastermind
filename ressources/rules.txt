@@ -1,0 +1,6 @@
+Bienvenue sur le mastermind game!
+Le but du jeu est de deviner un code secret composé par défaut de 4 symboles.
+Après avoir commencé une partie il faut faire un essai de 4 symboles.
+Le gardien du code secret va ensuite vous annoncer quelles couleurs sont présentes dans la solution.
+Un autre essai sera alors possible.
+Dans le jeu par défaut, vous aurez 10 essais et 4 symboles, mais il est possible de customiser ces valeurs.
