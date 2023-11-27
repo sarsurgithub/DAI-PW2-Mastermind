@@ -61,30 +61,41 @@ public class Server implements Runnable{
                 printWriter.println("OK");
 
                 String clientMessage;
+
+
                 while ((clientMessage = reader.readLine()) != null) {
+                        String[] serverParts = clientMessage.split(" ");
                     switch (clientMessage.split(" ")[0]) {
                         case "START":
-                            startGame(printWriter);
+                            startGame(printWriter, serverParts);
                             break;
                         case "RULES":
-                            sendText(printWriter, "SEND RULES");
+                            if (serverParts.length == 1){
+                                sendText(printWriter, "SEND RULES");
+                            } else {
+                                printWriter.println("Invalid command. Type 'HELP' for a list of commands.");
+                            }
                             break;
                         case "HELP":
-                            sendText(printWriter, "COMMANDS");
+                            if (serverParts.length == 1) {
+                                sendText(printWriter, "SEND COMMANDS");
+                            } else {
+                                printWriter.println("ERROR: Invalid command. Type 'HELP' for a list of commands.");
+                            }
                             break;
                         case "TRY":
                             if (gameInProgress) {
                                 handleTry(printWriter, clientMessage.substring(4).toCharArray());
                             } else {
-                                printWriter.println("ERROR 403");
+                                printWriter.println("ERROR: No game started");
                             }
                             break;
                         case "QUIT":
-                            printWriter.println("FINISHED LOST");
+                            if(gameInProgress) printWriter.println("FINISHED LOST");
                             socket.close();
                             return;
                         default:
-                            printWriter.println("ERROR 400 Please send a correct command");
+                            printWriter.println("ERROR: Invalid command. Type 'HELP' for a list of commands.");
                             return;
                     }
                 }
@@ -94,10 +105,14 @@ public class Server implements Runnable{
             }
         }
 
-        private void startGame(PrintWriter writer) {
-            game = new MastermindGame();
+        private void startGame(PrintWriter writer, String[] serverParts) {
+            if (serverParts.length == 1) {
+                game = new MastermindGame();
+            } else {
+                game = new MastermindGame(Integer.parseInt(serverParts[1]), Integer.parseInt(serverParts[2]));
+            }
             gameInProgress = true;
-            writer.println("GAME STARTED");
+            writer.println("GAME STARTED with " + game.getNbPins() + " pins and " + game.getNbTry() + " tries.");
 
         }
 
@@ -105,22 +120,24 @@ public class Server implements Runnable{
             String filepath;
             if (Objects.equals(type, "SEND RULES")){
                 filepath = "ressources/rules.txt";
-            } else if (Objects.equals(type, "COMMANDS")){
-                filepath = "ressources/help.txt";
+            } else if (Objects.equals(type, "SEND COMMANDS")){
+                filepath = "ressources/help.txt.txt";
             } else {
                 return;
             }
 
-            writer.println(type);
 
             File file = new File(filepath);
 
             if (file.exists()) {
                 try (BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
+                    StringBuilder wholeText = new StringBuilder();
+                    wholeText.append(type + " : ");
                     String line;
                     while ((line = fileReader.readLine()) != null) {
-                        writer.println(line);
+                        wholeText.append(line);
                     }
+                    writer.println(wholeText);
                 } catch (IOException e) {
                     writer.println("ERROR: Unable to read file " + type + ".");
                     System.out.println("Error reading file " + type + ": " + e.getMessage());
@@ -131,31 +148,35 @@ public class Server implements Runnable{
         }
 
         private void handleTry(PrintWriter writer, char[] proposition) {
-            // Check length
-            if (proposition.length != 4) {
-                writer.println("ERROR 418");
-                return;
-            }
 
+            // malformation
+            boolean error = false;
+            // Check length
+            if (proposition.length != game.getNbPins()) {
+                error = true;
+            }
             // Check if all characters are valid symbols
             String validSymbolsRegex = "[RBGY]";
             for (char c : proposition) {
                 if (!String.valueOf(c).matches(validSymbolsRegex)) {
-                    writer.println("ERROR 418");
-                    return;
+                    error = true;
                 }
             }
+            if (error) {
+                writer.println("ERROR: Invalid TRY command format. It should be " + game.getNbPins() + " characters long and only contain the letters RGBY.");
+                return;
+            }
 
-            // Convert char array to String
-            String propositionStr = new String(proposition);
-
-            // Use the string for further operations
+            //if command okay
             int[] clues = game.getHint(proposition);
             if (game.isCorrect(proposition)) {
                 writer.println("FINISHED WON");
                 gameInProgress = false;
-            } else {
-                writer.println("ANSWER " + clues[0] + " " + clues[1]);
+            } else if (game.getNbTry() == 0) {
+                writer.println("FINISHED LOST");
+                gameInProgress = false;
+            }else {
+                writer.println("ANSWER: " + clues[0] + " " + clues[1] + " " + game.getNbTry());
             }
         }
     }}

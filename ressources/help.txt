@@ -1,0 +1,9 @@
+START : used to start or restart a default game
+START <nbTries> <nbPins> : used to start or restart custom game
+<nbTries> : the number of tries the client has to find the solution. Has to be an integer > 0
+<nbPins> : the number of pins in the solution. Has to be an integer > 0
+RULES: used to get the rules of the game
+HELP: used to get the accepted requests from the server
+TRY <proposition> : used to propose an answer
+<proposition>: the solution that the client wants to try, as a string of nbPins chars accepting only certain symbols
+QUIT: requests the server to close the connection

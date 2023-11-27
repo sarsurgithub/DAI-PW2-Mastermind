@@ -31,11 +31,10 @@ public class MastermindGame {
     public int getNbTry() {
         return nbTry;
     }
-
+    public int getNbPins() { return nbPins; }
     public int getTurn() {
         return turn;
     }
-
     public char[] getSecretCode() {
         return secretCode;
     }

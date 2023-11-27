@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Objects;
 import java.util.Scanner;
 
 @CommandLine.Command(name = "client", version = "1.0", mixinStandardHelpOptions = true)
@@ -23,8 +24,7 @@ public class Client implements Runnable {
     private String host;
 
     private final Scanner scanner = new Scanner(System.in);
-    private boolean gameInProgress = false;
-    private int nbPins = 4;
+
 
     @Override
     public void run() {
@@ -52,42 +52,18 @@ public class Client implements Runnable {
                 }
 
                 String[] serverParts = fromServer.split(" ");
+                System.out.println(fromServer);
                 processServerMessage(serverParts);
 
-                boolean correctInput = false;
 
-                do {
-                    System.out.print("Enter command: ");
-                    fromUser = scanner.nextLine().toUpperCase();
-                    String[] userParts = fromUser.split(" ");
-
-                    switch (userParts[0]) {
-                        case "START":
-                            fromUser = processStartCommand(userParts);
-                            if (fromUser != null) {
-                                correctInput = true;
-                            }
-                            break;
-                        case "TRY":
-                            if (gameInProgress) {
-                                correctInput = processTryInput(userParts);
-                            } else {
-                                System.out.println("No game in progress. Type 'START' to start a new game.");
-                            }
-                            break;
-                        case "RULES", "HELP", "QUIT":
-                            if (userParts.length == 1) {
-                                correctInput = true;
-                            } else {
-                                System.out.println("Invalid command. Type 'HELP' for a list of commands.");
-                            }
-                            break;
-                        default:
-                            System.out.println("Invalid command. Type 'HELP' for a list of commands.");
-                    }
-                } while (!correctInput);
-
+                System.out.print("Enter command: ");
+                fromUser = scanner.nextLine().toUpperCase();
+                String[] userParts = fromUser.split(" ");
                 if (!fromUser.isEmpty()) {
+                    if(Objects.equals(userParts[0], "START")){
+                        fromUser = processStartCommand(userParts);
+                    }
+
                     out.println(fromUser);
                 }
             }
@@ -106,9 +82,8 @@ public class Client implements Runnable {
                 break;
             case "STARTED":
                 System.out.println("Game started. Type 'TRY' to make a guess or 'QUIT' to exit.");
-                gameInProgress = true;
                 break;
-            case "SEND":
+            case "SEND RULES":
                 if (serverParts.length > 1) {
                     String s = String.join(" ", serverParts);
                     System.out.println(s);
@@ -120,16 +95,13 @@ public class Client implements Runnable {
                 switch (serverParts[1]) {
                     case "WON":
                         System.out.println("You won! Type 'START' to play again or 'QUIT' to exit.");
-                        gameInProgress = false;
                         break;
                     case "LOST":
                         System.out.println("Game Over, you lost. Type 'START' to play again or 'QUIT' to exit.");
-                        gameInProgress = false;
                         break;
                     default:
                         System.out.println("Invalid game result received from server.");
                 }
-                break;
             case "ERROR":
                 System.out.println("Error received from server: " + serverParts[1]);
                 break;
@@ -148,7 +120,7 @@ public class Client implements Runnable {
                     System.out.println("How many tries do you want?");
                     int tries = readIntFromUser(scanner);
                     System.out.println("How many pins do you want?");
-                    this.nbPins = readIntFromUser(scanner);
+                    int nbPins = readIntFromUser(scanner);
                     return userParts[0] + " " + tries + " " + nbPins;
                 default:
                     System.out.println("This was not a valid answer, please start again.");
@@ -159,15 +131,6 @@ public class Client implements Runnable {
         return null;
     }
 
-    private boolean processTryInput(String[] parts) {
-        //TRY command processing has to be length this.pins
-        if (parts.length == 2 && parts[1].length() == this.nbPins && parts[1].matches("[RGBY]+")) {
-            return true;
-        }
-        System.out.println("Invalid TRY command format. It should be " + this.nbPins + " characters long and only contain the letters RGBY.");
-        return false;
-
-    }
 
 
     private static int readIntFromUser(Scanner scanner) {
