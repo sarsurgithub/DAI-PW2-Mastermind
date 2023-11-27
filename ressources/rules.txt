@@ -11,3 +11,4 @@ comprising 4 symbols. However, there's an option to customize these parameters, 
 
 This game is not only a test of logic and deduction but also an engaging and fun way to challenge your
 problem-solving skills. So, gear up for an exciting journey of mystery and discovery in Mastermind!
+EOF

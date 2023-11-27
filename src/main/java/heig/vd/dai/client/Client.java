@@ -46,21 +46,18 @@ public class Client implements Runnable {
                     break;
                 }
 
-                if (fromServer == null){
+                if (fromServer == null) {
                     System.out.println("Server disconnected.");
                     break;
                 }
 
-                String[] serverParts = fromServer.split(" ");
-                System.out.println(fromServer);
-                processServerMessage(serverParts);
-
+                processServerMessage(fromServer, in);
 
                 System.out.print("Enter command: ");
                 fromUser = scanner.nextLine().toUpperCase();
                 String[] userParts = fromUser.split(" ");
                 if (!fromUser.isEmpty()) {
-                    if(Objects.equals(userParts[0], "START")){
+                    if (Objects.equals(userParts[0], "START")) {
                         fromUser = processStartCommand(userParts);
                     }
 
@@ -73,23 +70,19 @@ public class Client implements Runnable {
         }
     }
 
-    private void processServerMessage(String[] serverParts) {
+    private void processServerMessage(String fromServer, BufferedReader in) throws IOException {
+        String[] serverParts = fromServer.split(" ");
         switch (serverParts[0]) {
-            case "OK":
-                break;
             case "ANSWER":
                 processAnswer(serverParts);
                 break;
-            case "STARTED":
-                System.out.println("Game started. Type 'TRY' to make a guess or 'QUIT' to exit.");
-                break;
-            case "SEND RULES":
-                if (serverParts.length > 1) {
-                    String s = String.join(" ", serverParts);
-                    System.out.println(s);
-                } else {
-                    System.out.println("Invalid SEND from server");
+            case "SEND":
+                StringBuilder everything = new StringBuilder();
+                String line;
+                while (!Objects.equals(line = in.readLine(), "EOF")) {
+                    everything.append(line).append("\n");
                 }
+                System.out.println(everything);
                 break;
             case "FINISHED":
                 switch (serverParts[1]) {
@@ -102,9 +95,11 @@ public class Client implements Runnable {
                     default:
                         System.out.println("Invalid game result received from server.");
                 }
-            case "ERROR":
-                System.out.println("Error received from server: " + serverParts[1]);
+            case "ERROR", "OK", "STARTED":
+                System.out.println(fromServer);
                 break;
+            default:
+                System.out.println("Invalid message received from server.");
         }
     }
 
@@ -130,7 +125,6 @@ public class Client implements Runnable {
         System.out.println("Invalid START command format. It should be 'START'");
         return null;
     }
-
 
 
     private static int readIntFromUser(Scanner scanner) {
