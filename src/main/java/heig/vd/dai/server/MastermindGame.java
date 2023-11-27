@@ -8,8 +8,8 @@ public class MastermindGame {
     private static final char[] COLORS = {'R', 'B', 'G', 'Y'};
     private final int nbTry;
     private int turn;
-    private int nbPins;
-    private final char[] secretCode = new char[nbPins];
+    private final int nbPins;
+    private char[] secretCode;
 
     public MastermindGame() {
         this(10, 4);
@@ -22,6 +22,7 @@ public class MastermindGame {
     }
 
     private void generateSecretCode() {
+        secretCode = new char[nbPins];
         for (int i = 0; i < nbPins; i++) {
             secretCode[i] = COLORS[(int) (Math.random() * NB_COLORS) % NB_COLORS];
         }
