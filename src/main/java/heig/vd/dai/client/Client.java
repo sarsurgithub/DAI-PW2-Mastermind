@@ -16,11 +16,11 @@ import java.util.Scanner;
 
 public class Client implements Runnable {
 
-    @CommandLine.Parameters(paramLabel = "<port>", defaultValue = "4444",
+    @CommandLine.Option(names = "-p", paramLabel = "<port>", defaultValue = "4444",
             description = "Port (default: ${DEFAULT-VALUE})")
     private int port;
 
-    @CommandLine.Parameters(paramLabel = "<host>", defaultValue = "localhost",
+    @CommandLine.Option(names = "-h", paramLabel = "<host>", defaultValue = "localhost",
             description = "Host (default: ${DEFAULT-VALUE})")
     private String host;
 
