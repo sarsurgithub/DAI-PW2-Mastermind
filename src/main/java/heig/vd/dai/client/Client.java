@@ -20,7 +20,7 @@ public class Client implements Runnable {
             description = "Port (default: ${DEFAULT-VALUE})")
     private int port;
 
-    @CommandLine.Option(names = "-h", paramLabel = "<host>", defaultValue = "localhost",
+    @CommandLine.Option(names = "--host", paramLabel = "<host>", defaultValue = "localhost",
             description = "Host (default: ${DEFAULT-VALUE})")
     private String host;
 
