@@ -107,10 +107,11 @@ public class Server implements Runnable {
                         case "QUIT":
                             if (gameInProgress) printWriter.println("FINISHED LOST");
                             socket.close();
+                            System.out.println("Client disconnected.");
                             return;
                         default:
                             printWriter.println("ERROR Invalid command. Type 'HELP' for a list of commands.");
-                            return;
+                            break;
                     }
                 }
             } catch (IOException ex) {
