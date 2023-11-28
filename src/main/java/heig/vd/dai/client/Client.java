@@ -36,7 +36,6 @@ public class Client implements Runnable {
             String fromServer;
             String fromUser;
 
-            System.out.println("Connected to server. Type 'START' to begin a game, 'RULES' for rules, 'HELP' for commands, 'QUIT' to quit.");
 
             while (true) {
                 try {
@@ -73,6 +72,9 @@ public class Client implements Runnable {
     private void processServerMessage(String fromServer, BufferedReader in) throws IOException {
         String[] serverParts = fromServer.split(" ");
         switch (serverParts[0]) {
+            case "OK":
+                System.out.println("Connected to server. Type 'START' to begin a game, 'RULES' for rules, 'HELP' for commands, 'QUIT' to quit.");
+                break;
             case "ANSWER":
                 processAnswer(serverParts);
                 break;
@@ -95,7 +97,7 @@ public class Client implements Runnable {
                     default:
                         System.out.println("Invalid game result received from server.");
                 }
-            case "ERROR", "OK", "STARTED":
+            case "ERROR", "STARTED":
                 System.out.println(fromServer);
                 break;
             default:
