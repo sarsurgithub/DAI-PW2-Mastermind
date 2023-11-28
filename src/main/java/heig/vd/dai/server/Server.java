@@ -5,6 +5,7 @@ import picocli.CommandLine;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,8 +57,8 @@ public class Server implements Runnable {
 
         @Override
         public void run() {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                 PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true)) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(),StandardCharsets.UTF_8));
+                 PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true, StandardCharsets.UTF_8)) {
 
                 printWriter.println("OK");
 
@@ -141,7 +142,7 @@ public class Server implements Runnable {
             File file = new File(filepath);
 
             if (file.exists()) {
-                try (BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
+                try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(filepath), StandardCharsets.UTF_8))) {
                     StringBuilder wholeText = new StringBuilder();
                     wholeText.append(type).append(" : ");
                     String line;
