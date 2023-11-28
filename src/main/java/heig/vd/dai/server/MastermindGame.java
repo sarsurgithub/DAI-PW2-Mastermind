@@ -7,7 +7,7 @@ public class MastermindGame {
     private static final int NB_COLORS = 4;
     private static final char[] COLORS = {'R', 'B', 'G', 'Y'};
     private final int nbTry;
-    private int turn;
+    private int turnLeft;
     private final int nbPins;
     private char[] secretCode;
 
@@ -16,6 +16,7 @@ public class MastermindGame {
     }
 
     public MastermindGame(int nbTry, int nbPins) {
+        this.turnLeft = nbTry;
         this.nbTry = nbTry;
         this.nbPins = nbPins;
         generateSecretCode();
@@ -31,11 +32,10 @@ public class MastermindGame {
     public int getNbTry() {
         return nbTry;
     }
-
-    public int getTurn() {
-        return turn;
+    public int getNbPins() { return nbPins; }
+    public int getTurnLeft() {
+        return turnLeft;
     }
-
     public char[] getSecretCode() {
         return secretCode;
     }
@@ -54,7 +54,7 @@ public class MastermindGame {
 
 
     public int[] getHint(char[] code) {
-        if (turn > nbTry) {
+        if (turnLeft == 0) {
             return null;
         }
         int[] hint = new int[2]; // hint[0] = right color right place , hint[1] = right color wrong place not counted in hint[0]
@@ -81,7 +81,7 @@ public class MastermindGame {
                 counts.put(code[i], counts.get(code[i]) - 1);
             }
         }
-        turn++;
+        turnLeft--;
         return hint;
     }
 }
