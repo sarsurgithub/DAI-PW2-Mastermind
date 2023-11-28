@@ -15,7 +15,7 @@ Otherwise, you can use the following commands:
 ./mvnw package
 ```
 
-## Usage
+## Basic Usage
 
 ### Server
 
@@ -29,6 +29,72 @@ java -jar target/DAI-PW2-Mastermind-1.0-SNAPSHOT.jar server
 ```bash
 # Run the client
 java -jar target/DAI-PW2-Mastermind-1.0-SNAPSHOT.jar client 
+```
+
+## PicoCLI usage
+
+### Possible params with PicoCLI
+
+#### Server
+
+```
+java -jar target/DAI-PW2-Mastermind-1.0-SNAPSHOT.jar server -h      
+Usage: mastermind server [-hV] [-p=<port>] [-t=<nb_thread>]
+  -h, --help        Show this help message and exit.
+  -p=<port>         Port of the server (default: 4444)
+  -t=<nb_thread>    Number of threads (default: 2)
+  -V, --version     Print version information and exit.
+
+```
+
+#### Client 
+```
+Usage: mastermind client [-hV] [--host=<host>] [-p=<port>]
+  -h, --help          Show this help message and exit.
+      --host=<host>   Host (default: localhost)
+  -p=<port>           Port (default: 4444)
+  -V, --version       Print version information and exit.
+
+```
+
+### Server with custom port
+```bash
+# Run the server
+java -jar target/DAI-PW2-Mastermind-1.0-SNAPSHOT.jar server -p 12345
+```
+
+### Client with custom port
+```bash
+# Run the client
+java -jar target/DAI-PW2-Mastermind-1.0-SNAPSHOT.jar client -p 12345
+```
+
+## Examples of mastermind games
+
+### Server side
+```
+java -jar target/DAI-PW2-Mastermind-1.0-SNAPSHOT.jar server   
+Server is listening on port 4444
+New client connected
+Client disconnected.
+```
+
+### Client's side
+
+```
+java -jar target/DAI-PW2-Mastermind-1.0-SNAPSHOT.jar client   
+Connected to server. Type 'START' to begin a game, 'RULES' for rules, 'HELP' for commands, 'QUIT' to quit.
+Enter command: START
+Do you want to play a default[1] (10 tries & 4 pins) or custom[2] game?
+1
+STARTED with 4 pins and 10 tries.
+Enter command: TRY RGBY
+Number of colors correctly placed: 0
+Numbers of colors present in the answer: 3
+Number of tries left: 9
+Enter command: QUIT
+Game Over, you lost. Type 'START' to play again or 'QUIT' to exit.
+FINISHED LOST
 ```
 
 ## Definition of the protocol
@@ -63,7 +129,8 @@ The client can send the following messages:
 
 The server can send the following messages:
 - `OK`: used to notify the client that the connection was successful and the server is ready to receive commands
-- `STARTED` : used to notify the client that the server will now accept TRY requests
+- `STARTED <message>` : used to notify the client that the server will now accept TRY requests
+  - `<message>` : the message to send to the client containing the number of tries and the number of pins 
 - `SEND <content>`: sends the rules or the accepted commands from the server
   - `<content>` : the content of the message
 - `ANSWER <clue1> <clue2> <triesLeft>` : used to send the answer with clues to a try back to the client

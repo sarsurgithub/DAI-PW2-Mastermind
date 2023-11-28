@@ -11,12 +11,12 @@ Server -> Client: OK
 ||30||
 
 Client -> Server: START
-Client <- Server: STARTED
+Client <- Server: STARTED with 4 pins and 10 tries
 
 ||30||
 
 Client -> Server: TRY rbgy
-Client <- Server: ANSWER 1 2
+Client <- Server: ANSWER 1 2 9
 
 ||30||
 
