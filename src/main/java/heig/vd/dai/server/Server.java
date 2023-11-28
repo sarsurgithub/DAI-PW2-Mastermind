@@ -177,11 +177,11 @@ public class Server implements Runnable {
             if (game.isCorrect(proposition)) {
                 writer.println("FINISHED WON");
                 gameInProgress = false;
-            } else if (game.getNbTry() == 0) {
+            } else if (game.getTurnLeft() == 0) {
                 writer.println("FINISHED LOST");
                 gameInProgress = false;
             } else {
-                writer.println("ANSWER " + clues[0] + " " + clues[1] + " " + (game.getNbTry() - game.getTurn()));
+                writer.println("ANSWER " + clues[0] + " " + clues[1] + " " + game.getTurnLeft());
             }
         }
     }
