@@ -12,14 +12,16 @@ import java.util.concurrent.Executors;
 
 @CommandLine.Command(name = "server", version = "1.0", mixinStandardHelpOptions = true)
 public class Server implements Runnable {
-    @CommandLine.Parameters(paramLabel = "<port>", defaultValue = "4444",
+    @CommandLine.Option(names = "-p", defaultValue = "4444",
             description = "Port of the server (default: ${DEFAULT-VALUE})")
     private int port;
-    private final ExecutorService pool; // Thread pool
-    private static final int NUMBER_OF_THREADS = 3;
 
+    @CommandLine.Option(names = "-t", defaultValue = "2",
+            description = "Number of threads (default: ${DEFAULT-VALUE})")
+    private int nb_thread = 2;
+    private final ExecutorService pool; // Thread pool
     public Server() {
-        this.pool = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+        this.pool = Executors.newFixedThreadPool(nb_thread);
     }
 
     @Override
